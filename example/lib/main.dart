@@ -14,8 +14,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final List<String> _data = [];
+  String _event = "";
+
+  @override
+  void initState() {
+    super.initState();
+    listenToStream();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,21 +36,19 @@ class HomePage extends StatelessWidget {
         title: Text('EventChannel Background Issue Sample'),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: StreamBuilder(
-            stream: EventChannelBackgroundIssue.getData,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                print('Data Received: ${snapshot.data}'
-                    'Total Data in List: ${_data.length}');
-                _data.add(snapshot.data);
-                return Text('Latest Data: ${snapshot.data}');
-              }
-              return Text('No Data');
-            },
-          ),
-        ),
+        child: Text('Latest Data: $_event'),
       ),
     );
+  }
+
+  void listenToStream() {
+    EventChannelBackgroundIssue.getData.listen((event) {
+      setState(() {
+        _event = event;
+      });
+      print('Data Received: $event '
+          'Total Data in List: ${_data.length}');
+      _data.add(event);
+    });
   }
 }
